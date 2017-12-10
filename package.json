@@ -1,0 +1,20 @@
+{
+  "name": "klogskabet-audio-player",
+  "version": "1.0.0",
+  "description": "Simple Node.js app for a Raspberry Pi-driven jukebox in Klogskabet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yokecph/klogskabet-audio-player.git"
+  },
+  "author": "YOKE ApS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yokecph/klogskabet-audio-player/issues"
+  },
+  "homepage": "https://github.com/yokecph/klogskabet-audio-player#readme",
+  "dependencies": {}
+}

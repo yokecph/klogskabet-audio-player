@@ -1,0 +1,6 @@
+# Ignore generated files
+node_modules
+log/*
+
+# Keep otherwise empty dirs around by placing a .gitkeep file in them
+!.gitkeep
