@@ -1,5 +1,6 @@
 const Player = require('./lib/player.js');
 const Button = require('./lib/button.js');
+const Display = require('./lib/display.js');
 
 const prevButton = new Button(17);
 const playPauseButton = new Button(27);
@@ -19,24 +20,6 @@ nextButton.on('press', _ => {
   console.log('Next pressed');
   playNext();
 });
-
-// a simple helper function
-function formatTime(time) {
-  var seconds = (time % 60).toFixed(3);
-  var minutes = time / 60 | 0;
-  var hours = time / 3600 | 0;
-
-  function pad(n) {
-    return `00${n}`.slice(-2);
-  }
-
-  var string = `${pad(minutes)}:${seconds}`;
-  if (hours > 0) {
-    string = `${hours}:${string}`;
-  }
-
-  return string;
-}
 
 // create a new player (spawns an mpg123 process)
 var player = new Player();
@@ -104,3 +87,25 @@ player.on('timestamp', function (elapsed, remaining) {
 
 // start playing
 playNext();
+
+
+const lcd = new Display({
+  rs: 5,
+  e: 6,
+  data: [13, 26, 16, 20],
+  cols: 20,
+  rows: 2
+});
+
+player.on('loaded', (file) => lcd.title = file);
+player.on('timestamp', (elapsed) => lcd.time = elapsed);
+
+// If ctrl+c is hit, free resources and exit.
+process.on('SIGINT', _ => {
+  playPauseButton.destroy();
+  nextButton.destroy();
+  prevButton.destroy();
+  lcd.destroy();
+  process.exit();
+});
+
