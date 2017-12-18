@@ -1,25 +1,20 @@
 const Player = require('./lib/player.js');
-const Gpio = require('onoff').Gpio;
+const Button = require('./lib/button.js');
 
-const buttons = [
-  new Gpio(17, 'in', 'falling'),
-  new Gpio(27, 'in', 'falling'),
-  new Gpio(22, 'in', 'falling')
-];
+const prevButton = new Button(17);
+const playPauseButton = new Button(27);
+const nextButton = new Button(22);
 
-buttons.forEach(function (button, i) {
-  button.watch(function (err) {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
-    console.log(`Button #${i} pressed`);
-  });
+prevButton.on('press', _ => {
+  console.log('Prev pressed');
 });
 
-process.on('SIGINT', function () {
-  buttons.forEach(button => button.unexport());
+playPauseButton.on('press', _ => {
+  console.log('Play/pause pressed');
+});
+
+nextButton.on('press', _ => {
+  console.log('Next pressed');
 });
 
 // a simple helper function
