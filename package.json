@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/yokecph/klogskabet-audio-player#readme",
   "dependencies": {
+    "lcd": "^1.1.5",
     "onoff": "^1.1.8"
   }
 }
