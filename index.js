@@ -1,4 +1,26 @@
 const Player = require('./lib/player.js');
+const Gpio = require('onoff').Gpio;
+
+const buttons = [
+  new Gpio(17, 'in', 'falling'),
+  new Gpio(27, 'in', 'falling'),
+  new Gpio(22, 'in', 'falling')
+];
+
+buttons.forEach(function (button, i) {
+  button.watch(function (err) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log(`Button #${i} pressed`);
+  });
+});
+
+process.on('SIGINT', function () {
+  buttons.forEach(button => button.unexport());
+});
 
 // a simple helper function
 function formatTime(time) {
