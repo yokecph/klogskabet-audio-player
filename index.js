@@ -1,4 +1,24 @@
 const Player = require('./lib/player.js');
+const Button = require('./lib/button.js');
+
+const prevButton = new Button(17);
+const playPauseButton = new Button(27);
+const nextButton = new Button(22);
+
+prevButton.on('press', _ => {
+  console.log('Prev pressed');
+  playPrevious();
+});
+
+playPauseButton.on('press', _ => {
+  console.log('Play/pause pressed');
+  player.playPause();
+});
+
+nextButton.on('press', _ => {
+  console.log('Next pressed');
+  playNext();
+});
 
 // a simple helper function
 function formatTime(time) {
@@ -48,6 +68,23 @@ function playNext() {
 
   player.load(track);
   list.push(track);
+}
+
+// grab the last track in the array, load and play it, and put it back in
+// the list at the head of the list
+function playPrevious() {
+  if (!list.length) {
+    console.warn("No tracks!");
+    return;
+  }
+
+  var track = list.pop();
+  player.once('playing', function () {
+    console.log(`Playing ${track}`);
+  });
+
+  player.load(track);
+  list.unshift(track);
 }
 
 // when playback stops, play the next track
