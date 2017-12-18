@@ -7,17 +7,14 @@ const playPauseButton = new Button(27);
 const nextButton = new Button(22);
 
 prevButton.on('press', _ => {
-  console.log('Prev pressed');
   playPrevious();
 });
 
 playPauseButton.on('press', _ => {
-  console.log('Play/pause pressed');
   player.playPause();
 });
 
 nextButton.on('press', _ => {
-  console.log('Next pressed');
   playNext();
 });
 
@@ -45,9 +42,6 @@ function playNext() {
   }
 
   var track = list.shift();
-  player.once('playing', function () {
-    console.log(`Playing ${track}`);
-  });
 
   player.load(track);
   list.push(track);
@@ -62,9 +56,6 @@ function playPrevious() {
   }
 
   var track = list.pop();
-  player.once('playing', function () {
-    console.log(`Playing ${track}`);
-  });
 
   player.load(track);
   list.unshift(track);
