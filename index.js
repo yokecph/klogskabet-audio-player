@@ -2,9 +2,9 @@ const Player = require('./lib/player.js');
 const Button = require('./lib/button.js');
 const Display = require('./lib/display.js');
 
-const prevButton = new Button(17);
+const prevButton = new Button(22);
 const playPauseButton = new Button(27);
-const nextButton = new Button(22);
+const nextButton = new Button(17);
 
 prevButton.on('press', _ => {
   playPrevious();
