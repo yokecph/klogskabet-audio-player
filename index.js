@@ -39,10 +39,11 @@ const lcd = new Display({
 // ================================
 
 // load content
-
-const playlist = [];
 const request = require('request');
 const fs = require('fs');
+const transliterate = require('transliteration').transliterate;
+
+const playlist = [];
 var config = {};
 
 try {
@@ -105,7 +106,7 @@ if (!config.id) {
                 console.log(track.title);
                 playlist.push({
                   localFile: fileName,
-                  title: track.title
+                  title: transliterate(track.title)
                 });
                 downloadNextTrack();
               });
