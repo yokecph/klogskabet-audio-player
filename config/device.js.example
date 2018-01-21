@@ -1,0 +1,5 @@
+module.exports = {
+  // ids can only contain a-z (upper and lower case), digits,
+  // dashes and underscores
+  id: "example-id"
+};
