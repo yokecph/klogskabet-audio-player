@@ -145,4 +145,4 @@ Adhere to the `git-flow` model for branching etc..
 
 ## Version history
 ### 1.0.0
-Initial commit.
+Initial release.
