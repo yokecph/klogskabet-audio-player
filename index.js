@@ -49,13 +49,14 @@ var config = {};
 try {
   config = require('./config/device.js');
 } catch(err) {
-  // ...
+  // no-op
 }
 
 if (!config.id) {
   lcd.print("No device ID :(");
 } else {
   lcd.print(config.id, "Loading...");
+
   request.get(`http://klogskabet.yoke.dk/api/devices/${config.id}.json`, (error, res, body) => {
     if (res.statusCode !== 200) {
       if (res.statusCode === 404) {
@@ -84,6 +85,17 @@ if (!config.id) {
         return;
       }
 
+      // clean up old tracks
+      const oldFiles = fs.readdirSync(`${__dirname}/tmp/`);
+      oldFiles.forEach(file => {
+        var match = file.match(/^(\d+)\.mp3$/);
+        if (match) {
+          if (!json.tracks.find(track => track.id == match[1])) {
+            fs.unlinkSync(`${__dirname}/tmp/${file}`);
+          }
+        }
+      });
+
       function downloadNextTrack() {
         const track = tracks.shift();
 
@@ -97,17 +109,28 @@ if (!config.id) {
 
         const fileName = `${__dirname}/tmp/${track.id}.mp3`;
 
+        // skip downloading existing files
+        if (fs.existsSync(fileName)) {
+          playlist.push({
+            localFile: fileName,
+            title: transliterate(track.title)
+          });
+          process.nextTick(downloadNextTrack);
+          return;
+        }
+
+        // download track
         const req = request(track.url)
           .on('response', (res) => {
             if (res.statusCode === 200) {
               const stream = fs.createWriteStream(fileName);
 
               stream.on('finish', _ => {
-                console.log(track.title);
                 playlist.push({
                   localFile: fileName,
                   title: transliterate(track.title)
                 });
+
                 downloadNextTrack();
               });
 
