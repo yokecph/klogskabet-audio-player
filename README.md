@@ -2,7 +2,7 @@
 ©2017 YOKE ApS. All rights reserved.
 
 ## Description
-This is a minimal Node.js app, which wraps an mpg123 process to play MP3 audio files.
+This is a simple Node.js app for the Klogskabet audio module. It wraps an `mpg123` process to play the MP3 audio files assigned to it in the Klogskabet CMS.
 
 The code specifically targets a Raspberry Pi 3 running Raspbian "stretch", using a JustBoom DAC hat for audio output.
 
@@ -11,10 +11,69 @@ The code specifically targets a Raspberry Pi 3 running Raspbian "stretch", using
 - Node.js 8.x & npm
 - `mpg123`
 
-## Overview
-This is a very early version, that doesn't do a whole lot. It just loops through a list of 3 test MP3 files.
+## Installation
+NOTE: The following assumes you're running a regular Raspberry Pi with a passwordless-sudo `pi` user account. The config files for this app assumes the app will be installed in `/home/pi/klogskabet-audio-player/`.
 
-`index.js` is the main "controller" and entry point. The `lib/player.js` file exposes an API wrapper for a `mpg123` process.
+Of course it also assumes that 
+
+Fist, install the JustBoom DAC hardware and enable its device tree overlay (see also [JustBoom's docs](https://www.justboom.co/software/configure-justboom-with-raspbian/)), by editing `/boot/config.txt` (e.g. with `$ sudo nano /boot/config.txt`):
+
+1. Change the line `dtparam=audio=on` to `dtparam=audio=off`
+2. Add the line `dtoverlay=justboom-dac`
+
+Next, install dependencies (Node.js 8.x, device-tree compiler, and `mpg123`):
+
+    $ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+    $ sudo apt-get update
+    $ sudo apt-get install -y nodejs build-essential device-tree-compiler mpg123
+
+Download or clone this source code, and cd into the `/home/pi/klogskabet-audio-player` directory (if you've downloaded a .zip from GitHub, you may have to rename the directory to get rid of the branch name).
+
+    $ cd klogskabet-audio-player
+
+Compile the device-tree-overlay for the buttons, and move it to `/boot/overlays/`:
+
+    $ dtc -W no-unit_address_vs_reg -@ -I dts -O dtb -o ./devicetree/klogskabet-audio-buttons.dtbo ./devicetree/klogskabet-audio-buttons.dts
+    $ sudo cp ./devicetree/klogskabet-audio-buttons.dtbo /boot/overlays/klogskabet-audio-buttons.dtbo
+    $ sudo chown root:root /boot/overlays/klogskabet-audio-buttons.dtbo
+
+Install the overlay by editing `/boot/config.txt` again and add the line `dtoverlay=klogskabet-audio-buttons`.
+
+Install npm packages
+
+    $ npm install
+
+Set up the device's ID for use with the CMS by copying the example config, and editing it:
+
+    $ cp config/device.js.example config/device.js
+    $ nano config/device.js
+
+Reboot the Raspberry Pi:
+
+    $ sudo reboot
+
+Test the setup by issuing:
+
+    $ sudo node index.js
+
+Provided everything works, perform these final two steps to make the app start automatically and manage log files:
+
+Install the logrotate configuration:
+
+    $ sudo cp ./config/klogskabet-audio-player.logrotate /etc/logrotate.d/klogskabet-audio-player.logrotate
+    $ sudo chmod 744 /etc/logrotate.d/klogskabet-audio-player.logrotate
+    $ sudo chown root:root /etc/logrotate.d/klogskabet-audio-player.logrotate
+
+And install the systemd service script:
+
+    $ sudo cp ./config/klogskabet-audio-player.service /lib/systemd/system/klogskabet-audio-player.service
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl enable klogskabet-audio-player.service
+
+## Overview
+The app loads a playlist of MP3 files from the Klogskabet CMS, and loops through it.
+
+Three GPIO-connected buttons allow users to skip to the next/previous track, and play/pause the current track.
 
 ### Player API
 The player is rather simple:
@@ -73,22 +132,8 @@ The version number in `package.json` should be bumped for new releases (and `npm
 ### Known issues
 - Pausing is "delayed" slightly, as mpg123 doesn't clear already-buffered audio when pausing, so that has to play through.
 
-### Roadmap
-- Set up physical controls with Raspberry Pi GPIO button-pushes (see, for instance, [this npm package](https://github.com/fivdi/onoff)).
-
-- Set up LCD display readout (see, for instance, [this npm package](https://github.com/fivdi/lcd)). Should display title and time remaining? Should briefly display IP address(es) on startup?
-
-- Download files/content to play from CMS.
-
-- Figure out whether to grab display info from ID3 tags or elsewhere.
-
-- Register as a service to have it start automatically on boot.
-
 ### Committing
 Adhere to the `git-flow` model for branching etc..
-
-## Deployment
-TBD.
 
 ## Version history
 ### 1.0.0
