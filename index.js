@@ -26,39 +26,143 @@ process.on('exit', function () {
   player.quit();
 });
 
-// list of tracks to play
-const list = [
-  'test/1.mp3',
-  'test/2.mp3',
-  'test/3.mp3'
-];
+// ================================
+
+const lcd = new Display({
+  rs: 5,
+  e: 6,
+  data: [13, 26, 16, 20],
+  cols: 20,
+  rows: 2
+});
+
+// ================================
+
+// load content
+
+const playlist = [];
+const request = require('request');
+const fs = require('fs');
+var config = {};
+
+try {
+  config = require('./config/device.js');
+} catch(err) {
+  // ...
+}
+
+if (!config.id) {
+  lcd.print("No device ID :(");
+} else {
+  lcd.print(config.id, "Loading...");
+  request.get(`http://klogskabet.yoke.dk/api/devices/${config.id}.json`, (error, res, body) => {
+    if (res.statusCode !== 200) {
+      if (res.statusCode === 404) {
+        lcd.print(config.id, "No content :(");
+      } else {
+        lcd.print("HTTP error " + res.statusCode);
+      }
+      return;
+    }
+
+    if (error) {
+      lcd.print("An error occurred :(");
+      console.error(error);
+      return;
+    }
+
+    lcd.print(config.id, "Downloading...");
+
+    try {
+      const json = JSON.parse(body);
+      const tracks = json.tracks;
+      const trackCount = tracks.length;
+
+      if (!trackCount) {
+        lcd.print(config.id, "No tracks :(");
+        return;
+      }
+
+      function downloadNextTrack() {
+        const track = tracks.shift();
+
+        // done downloading, play first track
+        if (!track) {
+          playNext();
+          return;
+        }
+
+        lcd.print("Downloading...", `${trackCount - tracks.length} of ${trackCount}`);
+
+        const fileName = `${__dirname}/tmp/${track.id}.mp3`;
+
+        const req = request(track.url)
+          .on('response', (res) => {
+            if (res.statusCode === 200) {
+              const stream = fs.createWriteStream(fileName);
+
+              stream.on('finish', _ => {
+                console.log(track.title);
+                playlist.push({
+                  localFile: fileName,
+                  title: track.title
+                });
+                downloadNextTrack();
+              });
+
+              stream.on('error', (err) => {
+                console.log("Write stream error", err);
+                lcd.print("Download error...", ":(");
+              });
+
+              req.pipe(stream);
+            } else {
+              console.log("Unexpected status: " + res.statusCode);
+              lcd.print("Download error...", ":(");
+            }
+          })
+          .on('error', function () {
+             console.error("Track download error", arguments);
+             lcd.print("Download error...", ":(");
+          });
+      }
+
+      downloadNextTrack();
+
+    } catch (e) {
+      console.error("JSON parse error", e);
+      lcd.print("Download error...", ":(");
+      return;
+    }
+  });
+}
 
 // grab the first track in the array, load and play it, and put it back in
 // the list at the end
 function playNext() {
-  if (!list.length) {
+  if (!playlist.length) {
     console.warn("No tracks!");
     return;
   }
 
-  var track = list.shift();
+  var track = playlist.shift();
+  playlist.push(track);
 
-  player.load(track);
-  list.push(track);
+  player.load(track.localFile);
 }
 
 // grab the last track in the array, load and play it, and put it back in
 // the list at the head of the list
 function playPrevious() {
-  if (!list.length) {
+  if (!playlist.length) {
     console.warn("No tracks!");
     return;
   }
 
-  var track = list.pop();
+  var track = playlist.pop();
+  playlist.unshift(track);
 
-  player.load(track);
-  list.unshift(track);
+  player.load(track.localFile);
 }
 
 // when playback stops, play the next track
@@ -69,26 +173,11 @@ player.on('error', function (msg) {
   playNext();
 });
 
-// uncomment to log timestamps
-/*
-player.on('timestamp', function (elapsed, remaining) {
-  console.log(formatTime(elapsed) + " of " + formatTime(player.duration));
-})
-*/
-
-// start playing
-playNext();
-
-
-const lcd = new Display({
-  rs: 5,
-  e: 6,
-  data: [13, 26, 16, 20],
-  cols: 20,
-  rows: 2
+player.on('loaded', (file) => {
+  const track = playlist.find(track => track.localFile === file);
+  lcd.title = track && track.title ? track.title : "Untitled";
 });
 
-player.on('loaded', (file) => lcd.title = file);
 player.on('timestamp', (elapsed) => lcd.time = elapsed);
 
 // If ctrl+c is hit, free resources and exit.
@@ -99,4 +188,3 @@ process.on('SIGINT', _ => {
   lcd.destroy();
   process.exit();
 });
-
