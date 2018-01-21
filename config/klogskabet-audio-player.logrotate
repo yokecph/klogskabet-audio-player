@@ -1,4 +1,4 @@
-/home/pi/apps/klogskabet-audio-player/log/*.log {
+/home/pi/klogskabet-audio-player/log/*.log {
   weekly
   missingok
   rotate 52

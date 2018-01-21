@@ -5,16 +5,16 @@ After=network.target
 [Service]
 User=pi
 Group=pi
-WorkingDirectory=/home/pi/apps/klogskabet-audio-player
+WorkingDirectory=/home/pi/klogskabet-audio-player
 
 # Environment=
 
 # Ensure the log file exists
-ExecStartPre=/usr/bin/touch /home/pi/apps/klogskabet-audio-player/log/node.log
+ExecStartPre=/usr/bin/touch /home/pi/klogskabet-audio-player/log/node.log
 
 # Run the service in a shell so its io can be redirected (systemd doesn't allow
 # this, which is really annoying)
-ExecStart=/bin/sh -c 'nodejs index.js 2>&1 >> log/node.log'
+ExecStart=/bin/sh -c 'sudo nodejs index.js 2>&1 >> log/node.log'
 
 Restart=always
 
