@@ -14,9 +14,9 @@ The code specifically targets a Raspberry Pi 3 running Raspbian "stretch", using
 ## Installation
 NOTE: The following assumes you're running a regular Raspberry Pi with a passwordless-sudo `pi` user account. The config files for this app assumes the app will be installed in `/home/pi/klogskabet-audio-player/`.
 
-Of course it also assumes that 
+Of course it also assumes that the audio module has been built as specified.
 
-Fist, install the JustBoom DAC hardware and enable its device tree overlay (see also [JustBoom's docs](https://www.justboom.co/software/configure-justboom-with-raspbian/)), by editing `/boot/config.txt` (e.g. with `$ sudo nano /boot/config.txt`):
+First, if you haven't already, install the JustBoom DAC hardware and enable its device tree overlay (see also [JustBoom's docs](https://www.justboom.co/software/configure-justboom-with-raspbian/)), by editing `/boot/config.txt` (e.g. with `$ sudo nano /boot/config.txt`):
 
 1. Change the line `dtparam=audio=on` to `dtparam=audio=off`
 2. Add the line `dtoverlay=justboom-dac`

@@ -1,6 +1,6 @@
 {
   "name": "klogskabet-audio-player",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple Node.js app for a Raspberry Pi-driven jukebox in Klogskabet",
   "main": "index.js",
   "scripts": {
