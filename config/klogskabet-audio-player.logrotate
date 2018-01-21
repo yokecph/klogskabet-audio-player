@@ -1,0 +1,11 @@
+/home/pi/klogskabet-audio-player/log/*.log {
+  weekly
+  missingok
+  rotate 52
+  size 5M
+  compress
+  delaycompress
+  notifempty
+  create 640 pi pi
+  copytruncate
+}
