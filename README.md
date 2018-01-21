@@ -61,7 +61,7 @@ Provided everything works, perform these final two steps to make the app start a
 Install the logrotate configuration:
 
     $ sudo cp ./config/klogskabet-audio-player.logrotate /etc/logrotate.d/klogskabet-audio-player.logrotate
-    $ sudo chmod 744 /etc/logrotate.d/klogskabet-audio-player.logrotate
+    $ sudo chmod 0644 /etc/logrotate.d/klogskabet-audio-player.logrotate
     $ sudo chown root:root /etc/logrotate.d/klogskabet-audio-player.logrotate
 
 And install the systemd service script:
