@@ -70,6 +70,14 @@ And install the systemd service script:
     $ sudo systemctl daemon-reload
     $ sudo systemctl enable klogskabet-audio-player.service
 
+Reboot the Pi to ensure it starts up automatically. If you need to stop it when it's running as a service, you can issue:
+
+    $ sudo systemctl stop klogskabet-audio-player.service
+
+And conversely, to start it again:
+
+    $ sudo systemctl start klogskabet-audio-player.service
+
 ## Overview
 The app loads a playlist of MP3 files from the Klogskabet CMS, and loops through it.
 
