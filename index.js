@@ -41,6 +41,7 @@ const lcd = new Display({
 // load content
 const request = require('request');
 const fs = require('fs');
+const path = require('path');
 const transliterate = require('transliteration').transliterate;
 
 const playlist = [];
@@ -88,9 +89,9 @@ if (!config.id) {
       // clean up old tracks
       const oldFiles = fs.readdirSync(`${__dirname}/tmp/`);
       oldFiles.forEach(file => {
-        var match = file.match(/^(\d+)\.mp3$/);
-        if (match) {
-          if (!json.tracks.find(track => track.id == match[1])) {
+        if (/\.mp3$/.test(file)) {
+          const name = path.basename(file, '.mp3');
+          if (!json.tracks.find(track => track.checksum === name)) {
             fs.unlinkSync(`${__dirname}/tmp/${file}`);
           }
         }
@@ -107,7 +108,7 @@ if (!config.id) {
 
         lcd.print("Downloading...", `${trackCount - tracks.length} of ${trackCount}`);
 
-        const fileName = `${__dirname}/tmp/${track.id}.mp3`;
+        const fileName = `${__dirname}/tmp/${track.checksum}.mp3`;
 
         // skip downloading existing files
         if (fs.existsSync(fileName)) {
