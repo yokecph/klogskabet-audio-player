@@ -38,6 +38,25 @@ const lcd = new Display({
 
 // ================================
 
+// get local IP(s)
+const ifaces = require('os').networkInterfaces();
+
+function ip4ForIface(name) {
+  if (!ifaces[name]) {
+    return undefined;
+  }
+
+  const iface = ifaces[name].find((iface) => !iface.internal && iface.family === 'IPv4');
+  return iface ? iface.address : undefined;
+}
+
+// NOTE: raspberry pi specific iface names!
+const ips = {};
+if (ip4ForIface('eth0')) ips['eth_ip'] = ip4ForIface('eth0');
+if (ip4ForIface('wlan0')) ips['wlan_ip'] = ip4ForIface('wlan0');
+
+// ================================
+
 // load content
 const request = require('request');
 const fs = require('fs');
@@ -58,7 +77,13 @@ if (!config.id) {
 } else {
   lcd.print(config.id, "Loading...");
 
-  request.get(`http://klogskabet.yoke.dk/api/devices/${config.id}.json`, (error, res, body) => {
+  const url = `https://klogskabet.yoke.dk/api/devices/${config.id}.json`
+
+  // check in
+  request.put({url: url, form: { device: ips } });
+
+  // get content
+  request.get(url, (error, res, body) => {
     if (res.statusCode !== 200) {
       if (res.statusCode === 404) {
         lcd.print(config.id, "No content :(");
