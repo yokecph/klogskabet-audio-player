@@ -144,5 +144,8 @@ The version number in `package.json` should be bumped for new releases (and `npm
 Adhere to the `git-flow` model for branching etc..
 
 ## Version history
+### 1.1.0
+Added server check-in to report IP addresses, and more robust file downloading.
+
 ### 1.0.0
 Initial release.
