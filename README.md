@@ -1,5 +1,5 @@
 # Klogskabet - Audio player
-©2017 YOKE ApS. All rights reserved.
+©2017 YOKE ApS. GPLv3 licensed.
 
 ## Description
 This is a simple Node.js app for the Klogskabet audio module. It wraps an `mpg123` process to play the MP3 audio files assigned to it in the Klogskabet CMS.
@@ -149,3 +149,6 @@ Added server check-in to report IP addresses, and more robust file downloading.
 
 ### 1.0.0
 Initial release.
+
+# License
+See `COPYING`
